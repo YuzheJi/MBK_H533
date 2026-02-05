@@ -21,6 +21,7 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size){
             if(BT_DMA_rx_buff[1] == 'A') BT_cmd_type = 2; 
             else if(BT_DMA_rx_buff[1] == 'B') BT_cmd_type = 3;
             else if(BT_DMA_rx_buff[1] == 'C') BT_cmd_type = 4;
+            else if(BT_DMA_rx_buff[1] == 'D') BT_cmd_type = 5;
         }
         else {
             BT_cmd_type = 127; 

@@ -9,7 +9,7 @@
 
 #define I_ON_ZONE 1.0f
 
-#define PWM_DEAD_ZONE 3
+#define PWM_DEAD_ZONE 1
 #define PWM_DEAD_ZONE_OFFSET_MINUS 115
 #define PWM_DEAD_ZONE_OFFSET_PLUS  130
 

@@ -172,19 +172,60 @@ int main(void)
   __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 100);
   Kp = 0.05;
   Ki = 0.03;
-  Kd = 0.130;
+
+  // Kd = 0.130;
+  Kd = 0.3;
 
   HAL_Delay(400);
   while (1){
 
     if(main_update == 1){
       //                             12345678901234567890
-      OLED_Printf(0, 0,  OLED_8X16, "BT_CMD: %d      ", BT_cmd_type);
+      OLED_Printf(0, 0,  OLED_6X8,  "%.3f %.3f %.3f  ", Kp, Ki, Kd);
       OLED_Printf(0, 16, OLED_8X16, "Tar: %.3f       ", target);
       OLED_Printf(0, 32, OLED_8X16, "Loc: %.3f       ", location);
-      OLED_Printf(0, 48, OLED_8X16, "Spd: %.3f       ", speed);
+      OLED_Printf(0, 48, OLED_8X16, "Spd: %.3f       ", rad_s);
       OLED_Update();
       main_update = 0;
+
+      if(BT_cmd_type == 1){
+          
+          OLED_Printf(0, 0, 8, "%s", BT_DMA_rx_buff+1); // get rid of type indicator
+          BT_cmd_type = 0;
+      }
+      else if(BT_cmd_type == 2){
+
+        // handling pid tuning here
+        sscanf((char*)BT_DMA_rx_buff, ";A%f", &Kp);
+        OLED_Printf(0, 0, 8, "%s", BT_DMA_rx_buff+1); // get rid of type indicator
+        BT_cmd_type = 0;
+      }
+      else if(BT_cmd_type == 3){
+
+        // handling pid tuning here
+        sscanf((char*)BT_DMA_rx_buff, ";B%f", &Ki);
+        OLED_Printf(0, 0, 8, "%s", BT_DMA_rx_buff+1); // get rid of type indicator
+        BT_cmd_type = 0;
+      }
+      else if(BT_cmd_type == 4){
+
+        // handling pid tuning here
+        sscanf((char*)BT_DMA_rx_buff, ";C%f", &Kd);
+        OLED_Printf(0, 0, 8, "%s", BT_DMA_rx_buff+1); // get rid of type indicator
+        BT_cmd_type = 0;
+      }
+      else if(BT_cmd_type == 5){
+
+        // handling pid tuning here
+        sscanf((char*)BT_DMA_rx_buff, ";D%f", &target);
+        err_acc = 0;
+        err_prev = 0;
+        OLED_Printf(0, 0, 8, "%s", BT_DMA_rx_buff+1); // get rid of type indicator
+        BT_cmd_type = 0;
+      }
+      else if(BT_cmd_type == 127){
+        BT_cmd_type = 0;
+      }
     }
     /* USER CODE END WHILE */
 
@@ -604,6 +645,7 @@ static void MX_USART1_UART_Init(void)
   */
 static void MX_GPIO_Init(void)
 {
+  GPIO_InitTypeDef GPIO_InitStruct = {0};
   /* USER CODE BEGIN MX_GPIO_Init_1 */
 
   /* USER CODE END MX_GPIO_Init_1 */
@@ -612,6 +654,16 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_12, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : PB12 */
+  GPIO_InitStruct.Pin = GPIO_PIN_12;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */
 

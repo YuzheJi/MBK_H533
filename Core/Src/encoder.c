@@ -11,6 +11,7 @@ int16_t get_encoder(){
 
     // get CNT and clear it
     uint16_t temp;
+    
     temp = __HAL_TIM_GetCounter(&htim3);
     __HAL_TIM_SetCounter(&htim3, 0);
     return (int16_t) temp;

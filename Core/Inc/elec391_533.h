@@ -26,10 +26,6 @@
  #define BT_RX_LEN 64  
 #endif
 
-#ifndef COM_RX_LEN
- #define COM_RX_LEN 64  
-#endif
-
 #ifndef NUM_LYRICS_LINE
     #define NUM_LYRICS_LINE 6  
 #endif
