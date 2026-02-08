@@ -37,6 +37,8 @@ __EXTERN uint8_t BT_cmd_type;
 
 __EXTERN uint8_t msec_count_frame;
 __EXTERN uint8_t half_msec_count_measure;
+__EXTERN volatile uint8_t homing_count;
+__EXTERN volatile uint8_t system_mode;
 
 __EXTERN volatile uint8_t main_update;
 __EXTERN volatile int32_t counter_acc;

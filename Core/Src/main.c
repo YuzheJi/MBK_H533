@@ -26,6 +26,7 @@
 #include "hc04.h"
 #include "elec391_533.h"
 #include "VOFA.h"
+#include "homing_control.h"
 
 
 /* USER CODE END Includes */
@@ -160,19 +161,19 @@ int main(void)
   OLED_Init();
   BT_cmd_type = 0;
   msec_count_frame = 0;
+  system_mode = 0;
+  homing_count = 0;
   half_msec_count_measure = 0;
   main_update = 0;
   counter_acc = 0;
   counter = 0;
-
   target = 0;
 
   HAL_UARTEx_ReceiveToIdle_DMA(&huart1, BT_DMA_rx_buff, BT_RX_LEN);
   
-  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 100);
+  __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 500);
   Kp = 0.05;
   Ki = 0.03;
-
   // Kd = 0.130;
   Kd = 0.3;
 
@@ -181,7 +182,8 @@ int main(void)
 
     if(main_update == 1){
       //                             12345678901234567890
-      OLED_Printf(0, 0,  OLED_6X8,  "%.3f %.3f %.3f  ", Kp, Ki, Kd);
+      // OLED_Printf(0, 0,  OLED_6X8, "%.3f %.3f %.3f  ", Kp, Ki, Kd);
+      OLED_Printf(0, 0,  OLED_8X16, "Mod: %d         ", system_mode);
       OLED_Printf(0, 16, OLED_8X16, "Tar: %.3f       ", target);
       OLED_Printf(0, 32, OLED_8X16, "Loc: %.3f       ", location);
       OLED_Printf(0, 48, OLED_8X16, "Spd: %.3f       ", rad_s);
@@ -221,6 +223,22 @@ int main(void)
         err_acc = 0;
         err_prev = 0;
         OLED_Printf(0, 0, 8, "%s", BT_DMA_rx_buff+1); // get rid of type indicator
+        BT_cmd_type = 0;
+      }
+      else if(BT_cmd_type == 6){
+        // handling homing command
+        system_mode = 2;
+        homing_control(1);
+        BT_cmd_type = 0;
+      }
+      else if(BT_cmd_type == 7){
+        // handling pid command
+        system_mode = 1;
+        BT_cmd_type = 0;
+      }
+      else if(BT_cmd_type == 8){
+        // handling halt command
+        system_mode = 0;
         BT_cmd_type = 0;
       }
       else if(BT_cmd_type == 127){
@@ -663,6 +681,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PB13 */
+  GPIO_InitStruct.Pin = GPIO_PIN_13;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /* USER CODE BEGIN MX_GPIO_Init_2 */

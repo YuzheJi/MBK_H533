@@ -16,3 +16,8 @@ int16_t get_encoder(){
     __HAL_TIM_SetCounter(&htim3, 0);
     return (int16_t) temp;
 }
+
+void clear_encoder(){
+    __HAL_TIM_SET_COUNTER(&htim3, 0); 
+    return;
+}

@@ -14,5 +14,6 @@
 extern TIM_HandleTypeDef htim3;
 
 int16_t get_encoder(void);
+void clear_encoder();
 
 #endif
