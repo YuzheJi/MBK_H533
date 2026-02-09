@@ -56,6 +56,7 @@ TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
+TIM_HandleTypeDef htim5;
 
 UART_HandleTypeDef huart1;
 DMA_HandleTypeDef handle_GPDMA1_Channel1;
@@ -75,6 +76,7 @@ static void MX_TIM1_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM4_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_TIM5_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
@@ -92,6 +94,7 @@ int main(void)
 {
 
   /* USER CODE BEGIN 1 */
+  
 
   /* USER CODE END 1 */
 
@@ -120,6 +123,7 @@ int main(void)
   MX_TIM3_Init();
   MX_TIM4_Init();
   MX_TIM2_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -149,6 +153,9 @@ int main(void)
 
   // timer4 for measurement: tik = 0.5ms
   HAL_TIM_Base_Start_IT(&htim4);
+
+  // timer5 for press timing: tik = 1ms
+  HAL_TIM_Base_Start_IT(&htim5);
 	
 	// pwm_ch1 
 	HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
@@ -159,15 +166,20 @@ int main(void)
   HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
 
   OLED_Init();
-  BT_cmd_type = 0;
   msec_count_frame = 0;
+  settle_count = 0;
+
   system_mode = 0;
-  homing_count = 0;
+  press_count = 0;
+  mode3_state = 0;
+
+  homing_flag = 0;
   half_msec_count_measure = 0;
   main_update = 0;
   counter_acc = 0;
   counter = 0;
   target = 0;
+  temp = 0;
 
   HAL_UARTEx_ReceiveToIdle_DMA(&huart1, BT_DMA_rx_buff, BT_RX_LEN);
   
@@ -175,75 +187,74 @@ int main(void)
   Kp = 0.05;
   Ki = 0.03;
   // Kd = 0.130;
-  Kd = 0.3;
+  Kd = 0.13;
 
   HAL_Delay(400);
   while (1){
 
     if(main_update == 1){
-      //                             12345678901234567890
-      // OLED_Printf(0, 0,  OLED_6X8, "%.3f %.3f %.3f  ", Kp, Ki, Kd);
-      OLED_Printf(0, 0,  OLED_8X16, "Mod: %d         ", system_mode);
-      OLED_Printf(0, 16, OLED_8X16, "Tar: %.3f       ", target);
-      OLED_Printf(0, 32, OLED_8X16, "Loc: %.3f       ", location);
-      OLED_Printf(0, 48, OLED_8X16, "Spd: %.3f       ", rad_s);
-      OLED_Update();
-      main_update = 0;
 
-      if(BT_cmd_type == 1){
-          
-          OLED_Printf(0, 0, 8, "%s", BT_DMA_rx_buff+1); // get rid of type indicator
-          BT_cmd_type = 0;
+      // mode check
+      // Halt mode: nothing
+      if(system_mode == 0){
+        //                             1234567890123456
+        OLED_Printf(0, 0,  OLED_8X16, "Mod: Resting... ");
+        OLED_Printf(0, 16, OLED_8X16, "Tar: %.3f       ", target);
+        OLED_Printf(0, 32, OLED_8X16, "Loc: %.3f       ", location);
+        OLED_Printf(0, 48, OLED_8X16, "Spd: %.3f       ", rad_s);
+        OLED_Update();
       }
-      else if(BT_cmd_type == 2){
 
-        // handling pid tuning here
-        sscanf((char*)BT_DMA_rx_buff, ";A%f", &Kp);
-        OLED_Printf(0, 0, 8, "%s", BT_DMA_rx_buff+1); // get rid of type indicator
-        BT_cmd_type = 0;
+      // Pid calibration mode:
+      if(system_mode == 1){
+        //                             1234567890123456
+        OLED_Printf(0, 0,  OLED_8X16, "Mod: Pid Cali...");
+        OLED_Printf(0, 16, OLED_8X16, "Tar: %.3f       ", target);
+        OLED_Printf(0, 32, OLED_8X16, "Loc: %.3f       ", location);
+        OLED_Printf(0, 48, OLED_8X16, "Spd: %.3f       ", rad_s);
+        OLED_Update();
       }
-      else if(BT_cmd_type == 3){
 
-        // handling pid tuning here
-        sscanf((char*)BT_DMA_rx_buff, ";B%f", &Ki);
-        OLED_Printf(0, 0, 8, "%s", BT_DMA_rx_buff+1); // get rid of type indicator
-        BT_cmd_type = 0;
-      }
-      else if(BT_cmd_type == 4){
-
-        // handling pid tuning here
-        sscanf((char*)BT_DMA_rx_buff, ";C%f", &Kd);
-        OLED_Printf(0, 0, 8, "%s", BT_DMA_rx_buff+1); // get rid of type indicator
-        BT_cmd_type = 0;
-      }
-      else if(BT_cmd_type == 5){
-
-        // handling pid tuning here
-        sscanf((char*)BT_DMA_rx_buff, ";D%f", &target);
-        err_acc = 0;
-        err_prev = 0;
-        OLED_Printf(0, 0, 8, "%s", BT_DMA_rx_buff+1); // get rid of type indicator
-        BT_cmd_type = 0;
-      }
-      else if(BT_cmd_type == 6){
-        // handling homing command
-        system_mode = 2;
+      if(system_mode == 2){
+        //                             1234567890123456
+        OLED_Printf(0, 0,  OLED_8X16, "Mod: Homing.....");
+        OLED_Printf(0, 16, OLED_8X16, "Tar: %.3f       ", target);
+        OLED_Printf(0, 32, OLED_8X16, "Loc: %.3f       ", location);
+        OLED_Printf(0, 48, OLED_8X16, "Spd: %.3f       ", rad_s);
+        OLED_Update();
         homing_control(1);
-        BT_cmd_type = 0;
-      }
-      else if(BT_cmd_type == 7){
-        // handling pid command
-        system_mode = 1;
-        BT_cmd_type = 0;
-      }
-      else if(BT_cmd_type == 8){
-        // handling halt command
         system_mode = 0;
-        BT_cmd_type = 0;
       }
-      else if(BT_cmd_type == 127){
-        BT_cmd_type = 0;
+
+      if(system_mode == 3){
+        //                               1234567890123456
+        if(mode3_state == 0){
+          OLED_Printf(0, 0,  OLED_8X16, "Mod: Auto.......");
+          OLED_Printf(0, 16, OLED_8X16, "S:   Homing.....");
+          OLED_Printf(0, 32, OLED_8X16, "Tar: %.3f       ", target);
+          OLED_Printf(0, 48, OLED_8X16, "Loc: %.3f       ", location);
+          OLED_Update();
+          homing_control(1);
+          mode3_state = 1;
+          event_index = 0;
+          settle_count = 0;
+        }
+        else if(mode3_state == 1){
+          OLED_Printf(0, 0,  OLED_8X16, "Mod: Auto.......");
+          OLED_Printf(0, 16, OLED_8X16, "S:   Locing.....");
+          OLED_Printf(0, 32, OLED_8X16, "Tar: %.3f       ", target);
+          OLED_Printf(0, 48, OLED_8X16, "Loc: %.3f       ", location);
+          OLED_Update();
+        }  
+        else if(mode3_state == 2){
+          OLED_Printf(0, 0,  OLED_8X16, "Mod: Auto.......");
+          OLED_Printf(0, 16, OLED_8X16, "S:   Pressing...");
+          OLED_Printf(0, 32, OLED_8X16, "Tar: %.3f       ", target);
+          OLED_Printf(0, 48, OLED_8X16, "Loc: %.3f       ", location);
+          OLED_Update();
+        }
       }
+      main_update = 0;
     }
     /* USER CODE END WHILE */
 
@@ -605,6 +616,51 @@ static void MX_TIM4_Init(void)
   /* USER CODE BEGIN TIM4_Init 2 */
 
   /* USER CODE END TIM4_Init 2 */
+
+}
+
+/**
+  * @brief TIM5 Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_TIM5_Init(void)
+{
+
+  /* USER CODE BEGIN TIM5_Init 0 */
+
+  /* USER CODE END TIM5_Init 0 */
+
+  TIM_ClockConfigTypeDef sClockSourceConfig = {0};
+  TIM_MasterConfigTypeDef sMasterConfig = {0};
+
+  /* USER CODE BEGIN TIM5_Init 1 */
+
+  /* USER CODE END TIM5_Init 1 */
+  htim5.Instance = TIM5;
+  htim5.Init.Prescaler = 250-1;
+  htim5.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim5.Init.Period = 999;
+  htim5.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim5.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_Base_Init(&htim5) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+  if (HAL_TIM_ConfigClockSource(&htim5, &sClockSourceConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim5, &sMasterConfig) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN TIM5_Init 2 */
+
+  /* USER CODE END TIM5_Init 2 */
 
 }
 

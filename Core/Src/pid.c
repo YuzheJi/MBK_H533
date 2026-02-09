@@ -4,14 +4,15 @@
 #include "VOFA.h"
 #include <stdlib.h>
 
-#define I_MAX  1.500f
-#define I_MIN -1.500f
+#define I_MAX  1.700f
+#define I_MIN -1.700f
 
-#define I_ON_ZONE 1.0f
+#define I_ON_ZONE 9.0f
 
-#define PWM_DEAD_ZONE 1
-#define PWM_DEAD_ZONE_OFFSET_MINUS 115
-#define PWM_DEAD_ZONE_OFFSET_PLUS  130
+#define PWM_DEAD_ZONE 0
+// 150 160: fric
+#define PWM_DEAD_ZONE_OFFSET_MINUS 65
+#define PWM_DEAD_ZONE_OFFSET_PLUS  70
 
 #define DEAD_BAND 0.7f
 
@@ -24,6 +25,20 @@ void pid_control(void){
 
     err = target - location;
     err_acc += err;
+
+    if(err < DEAD_BAND && err > -DEAD_BAND){
+        if(settle_count < SETTLE_TH) settle_count ++;
+    }
+    else {
+        if(settle_count > 0) settle_count --;
+    }
+
+    if(settle_count == SETTLE_TH){
+        BSP_LED_On(LED_GREEN);
+    }
+    else{
+        BSP_LED_Off(LED_GREEN);
+    }
 
     // Dead band
     if(err < DEAD_BAND && err > -DEAD_BAND){
