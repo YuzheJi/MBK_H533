@@ -4,15 +4,15 @@
 #include "VOFA.h"
 #include <stdlib.h>
 
-#define I_MAX  1.700f
-#define I_MIN -1.700f
+#define I_MAX  1.500f
+#define I_MIN -1.500f
 
-#define I_ON_ZONE 9.0f
+#define I_ON_ZONE 2.0f
 
 #define PWM_DEAD_ZONE 0
 // 150 160: fric
-#define PWM_DEAD_ZONE_OFFSET_MINUS 65
-#define PWM_DEAD_ZONE_OFFSET_PLUS  70
+#define PWM_DEAD_ZONE_OFFSET_MINUS 70
+#define PWM_DEAD_ZONE_OFFSET_PLUS  75
 
 #define DEAD_BAND 0.7f
 

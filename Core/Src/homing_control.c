@@ -17,9 +17,8 @@ void homing_control(uint8_t dir){
         while(homing_flag == 0);
         __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 420);
         HAL_Delay(200);
-        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 560);
+        __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 540);
     }
-
     // dir = 0 neg rotation 
     else if (dir == 0){
         __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 380);

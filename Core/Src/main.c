@@ -185,9 +185,9 @@ int main(void)
   
   __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 500);
   Kp = 0.05;
-  Ki = 0.03;
+  Ki = 0.015;
   // Kd = 0.130;
-  Kd = 0.13;
+  Kd = 1.2;
 
   HAL_Delay(400);
   while (1){
@@ -254,6 +254,7 @@ int main(void)
           OLED_Update();
         }
       }
+      
       main_update = 0;
     }
     /* USER CODE END WHILE */

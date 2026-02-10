@@ -7,7 +7,7 @@
 
 #define BT_BAUD_RATE 921600
 #define PI 3.141593f
-#define GEAR 33.8f
+#define GEAR 34.2f
 
 #ifdef GLOBAL_DEFINITION
     #define __EXTERN 
@@ -16,11 +16,11 @@
 #endif
 
 #ifndef FRAME_RATE
- #define FRAME_RATE 25  // in ms
+ #define FRAME_RATE 10  // in ms
 #endif
 
 #ifndef MEASURE_RATE
- #define MEASURE_RATE 10  // in ms
+ #define MEASURE_RATE 2  // mutiple of 0.5us
 #endif
 
 #ifndef BT_RX_LEN

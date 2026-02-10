@@ -50,17 +50,18 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
     // measure scaling 
     half_msec_count_measure++;
 
-    if(half_msec_count_measure >= MEASURE_RATE * 2){
+    if(half_msec_count_measure >= MEASURE_RATE){
       
       half_msec_count_measure = 0;
       counter = get_encoder();
       counter_acc += counter;
 
-      speed = (float) counter * 60.0f * 100.0f / 44.0f / GEAR; 
-      rad_s = (float) counter * 2 * PI * 100.0f / 44.0f;
+      speed = (float) counter * 60.0f * 1000.0f / 44.0f / GEAR; 
+      rad_s = (float) counter * 2 * PI * 1000.0f / 44.0f;
       location = counter_acc * 360.0f / 44.0f / GEAR; 
 
-      // VOFA_JustFloat_Send(&huart1, rad_s, 0, 0, 0, 0, 0);
+      // VOFA_JustFloat_Send(&huart1, (float)speed, (float)location, 0, 0, 0, 0);
+
       if(system_mode == 0){
         __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 500);
       }
@@ -69,7 +70,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
       }
 
       if(system_mode == 3){
-        if(mode3_state == 1) pid_control();
+        if(mode3_state == 1 || mode3_state == 2) pid_control();
         else if(mode3_state != 0) __HAL_TIM_SET_COMPARE(&htim1, TIM_CHANNEL_1, 500);
       }
     }
