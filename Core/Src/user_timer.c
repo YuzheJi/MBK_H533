@@ -56,9 +56,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
       counter = get_encoder();
       counter_acc += counter;
 
-      speed = (float) counter * 60.0f * 1000.0f / 44.0f / GEAR; 
-      rad_s = (float) counter * 2 * PI * 1000.0f / 44.0f;
-      location = counter_acc * 360.0f / 44.0f / GEAR; 
+      speed = (float) counter * 60.0f * 1000.0f / 64.0f / GEAR; 
+      rad_s = (float) counter * 2 * PI * 1000.0f / 64.0f;
+      location = counter_acc * 80.0f / 64.0f / GEAR; 
 
       // VOFA_JustFloat_Send(&huart1, (float)speed, (float)location, 0, 0, 0, 0);
 

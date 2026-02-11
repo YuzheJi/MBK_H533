@@ -200,7 +200,8 @@ int main(void)
         //                             1234567890123456
         OLED_Printf(0, 0,  OLED_8X16, "Mod: Resting... ");
         OLED_Printf(0, 16, OLED_8X16, "Tar: %.3f       ", target);
-        OLED_Printf(0, 32, OLED_8X16, "Loc: %.3f       ", location);
+        // OLED_Printf(0, 32, OLED_8X16, "Loc: %.3f       ", location);
+        OLED_Printf(0, 32, OLED_8X16, "Cnt: %d       ", counter_acc);
         OLED_Printf(0, 48, OLED_8X16, "Spd: %.3f       ", rad_s);
         OLED_Update();
       }
@@ -210,7 +211,8 @@ int main(void)
         //                             1234567890123456
         OLED_Printf(0, 0,  OLED_8X16, "Mod: Pid Cali...");
         OLED_Printf(0, 16, OLED_8X16, "Tar: %.3f       ", target);
-        OLED_Printf(0, 32, OLED_8X16, "Loc: %.3f       ", location);
+        // OLED_Printf(0, 32, OLED_8X16, "Loc: %.3f       ", location);
+        OLED_Printf(0, 32, OLED_8X16, "Cnt: %d       ", counter_acc);
         OLED_Printf(0, 48, OLED_8X16, "Spd: %.3f       ", rad_s);
         OLED_Update();
       }
@@ -219,7 +221,8 @@ int main(void)
         //                             1234567890123456
         OLED_Printf(0, 0,  OLED_8X16, "Mod: Homing.....");
         OLED_Printf(0, 16, OLED_8X16, "Tar: %.3f       ", target);
-        OLED_Printf(0, 32, OLED_8X16, "Loc: %.3f       ", location);
+        // OLED_Printf(0, 32, OLED_8X16, "Loc: %.3f       ", location);
+        OLED_Printf(0, 32, OLED_8X16, "Cnt: %d       ", counter_acc);
         OLED_Printf(0, 48, OLED_8X16, "Spd: %.3f       ", rad_s);
         OLED_Update();
         homing_control(1);
@@ -232,7 +235,8 @@ int main(void)
           OLED_Printf(0, 0,  OLED_8X16, "Mod: Auto.......");
           OLED_Printf(0, 16, OLED_8X16, "S:   Homing.....");
           OLED_Printf(0, 32, OLED_8X16, "Tar: %.3f       ", target);
-          OLED_Printf(0, 48, OLED_8X16, "Loc: %.3f       ", location);
+          // OLED_Printf(0, 48, OLED_8X16, "Loc: %.3f       ", location);
+          OLED_Printf(0, 48, OLED_8X16, "Cnt: %d       ", counter_acc);
           OLED_Update();
           homing_control(1);
           mode3_state = 1;
@@ -243,14 +247,16 @@ int main(void)
           OLED_Printf(0, 0,  OLED_8X16, "Mod: Auto.......");
           OLED_Printf(0, 16, OLED_8X16, "S:   Locing.....");
           OLED_Printf(0, 32, OLED_8X16, "Tar: %.3f       ", target);
-          OLED_Printf(0, 48, OLED_8X16, "Loc: %.3f       ", location);
+          // OLED_Printf(0, 48, OLED_8X16, "Loc: %.3f       ", location);
+          OLED_Printf(0, 48, OLED_8X16, "Cnt: %d       ", counter_acc);
           OLED_Update();
         }  
         else if(mode3_state == 2){
           OLED_Printf(0, 0,  OLED_8X16, "Mod: Auto.......");
           OLED_Printf(0, 16, OLED_8X16, "S:   Pressing...");
           OLED_Printf(0, 32, OLED_8X16, "Tar: %.3f       ", target);
-          OLED_Printf(0, 48, OLED_8X16, "Loc: %.3f       ", location);
+          // OLED_Printf(0, 48, OLED_8X16, "Loc: %.3f       ", location);
+          OLED_Printf(0, 48, OLED_8X16, "Cnt: %d       ", counter_acc);
           OLED_Update();
         }
       }

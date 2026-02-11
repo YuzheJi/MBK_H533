@@ -7,7 +7,7 @@
 
 #define BT_BAUD_RATE 921600
 #define PI 3.141593f
-#define GEAR 34.2f
+#define GEAR 6.25f
 
 #ifdef GLOBAL_DEFINITION
     #define __EXTERN 
@@ -20,7 +20,7 @@
 #endif
 
 #ifndef MEASURE_RATE
- #define MEASURE_RATE 2  // mutiple of 0.5us
+ #define MEASURE_RATE 2  // mutiple of 0.5ms
 #endif
 
 #ifndef BT_RX_LEN
@@ -56,7 +56,7 @@ __EXTERN volatile uint8_t system_mode;
 __EXTERN volatile uint8_t mode3_state;
 
 __EXTERN volatile uint8_t main_update;
-__EXTERN volatile int32_t counter_acc;
+__EXTERN volatile int64_t counter_acc;
 __EXTERN volatile int16_t counter;
 
 __EXTERN volatile float speed;
